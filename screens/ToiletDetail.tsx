@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Linking,
   Alert,
+  Platform,
 } from 'react-native';
 import { Toilet, Review } from '../types';
 import { Ionicons } from '@expo/vector-icons';
@@ -50,7 +51,7 @@ const RatingStars = ({ rating, size = 20, onPress }: { rating: number; size?: nu
           <Ionicons
             name={star <= rating ? 'star' : 'star-outline'}
             size={size}
-            color="#FFD700"
+            color={star <= rating ? '#000' : '#C0C0C0'}
           />
         </TouchableOpacity>
       ))}
@@ -91,12 +92,12 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
         });
 
         // Reset form
-      setNewReview({
-        cleanliness: 0,
-        accessibility: 0,
-        quality: 0,
-        comment: '',
-      });
+        setNewReview({
+          cleanliness: 0,
+          accessibility: 0,
+          quality: 0,
+          comment: '',
+        });
 
         // Refresh the toilet data
         const updatedRatings = await api.getRatings(toilet.id);
@@ -114,7 +115,9 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
             id: review.id,
             userId: review.user_id,
             userName: review.user_name,
-            rating: review.rating,
+            cleanliness: review.cleanliness,
+            accessibility: review.accessibility,
+            quality: review.quality,
             comment: review.comment,
             date: review.created_at
           })) || []
@@ -158,15 +161,15 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.header}>
-          <Text style={styles.name}>{toilet.name}</Text>
-          <Text style={styles.address}>{toilet.address}</Text>
+          <Text style={[styles.name, { fontFamily: 'System' }]}>{toilet.name}</Text>
+          <Text style={[styles.address, { fontFamily: 'System' }]}>{toilet.address}</Text>
           <View style={styles.paymentIndicator}>
             <Ionicons
               name={toilet.isPaid ? 'cash' : 'cash-outline'}
               size={24}
-              color={toilet.isPaid ? '#4CAF50' : '#9E9E9E'}
+              color={toilet.isPaid ? '#000' : '#C0C0C0'}
             />
-            <Text style={styles.paymentText}>
+            <Text style={[styles.paymentText, { fontFamily: 'System' }]}>
               {toilet.isPaid ? 'Paid' : 'Free'}
             </Text>
           </View>
@@ -176,48 +179,81 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
               onPress={handleShowOnMap}
             >
               <Ionicons name="map" size={20} color="white" />
-              <Text style={styles.actionButtonText}>Show on Map</Text>
+              <Text style={[styles.actionButtonText, { fontFamily: 'System' }]}>Show on Map</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.actionButton, styles.directionsButton]}
               onPress={handleGetDirections}
             >
               <Ionicons name="navigate" size={20} color="white" />
-              <Text style={styles.actionButtonText}>Get Directions</Text>
+              <Text style={[styles.actionButtonText, { fontFamily: 'System' }]}>Get Directions</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.ratingsContainer}>
           <View style={styles.ratingItem}>
-            <Text style={styles.ratingLabel}>Cleanliness</Text>
-            <RatingStars rating={toilet.ratings.cleanliness} />
+            <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Cleanliness</Text>
+            <RatingStars rating={toilet.ratings.cleanliness} size={16} />
           </View>
           <View style={styles.ratingItem}>
-            <Text style={styles.ratingLabel}>Accessibility</Text>
-            <RatingStars rating={toilet.ratings.accessibility} />
+            <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Accessibility</Text>
+            <RatingStars rating={toilet.ratings.accessibility} size={16} />
           </View>
           <View style={styles.ratingItem}>
-            <Text style={styles.ratingLabel}>Quality</Text>
-            <RatingStars rating={toilet.ratings.quality} />
+            <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Quality</Text>
+            <RatingStars rating={toilet.ratings.quality} size={16} />
           </View>
           <TouchableOpacity 
             style={styles.reviewCountContainer}
             onPress={() => navigation.navigate('Reviews', { toilet })}
           >
             <Ionicons name="chatbubble-outline" size={16} color="#666" />
-            <Text style={styles.reviewCountText}>
+            <Text style={[styles.reviewCountText, { fontFamily: 'System' }]}>
               {toilet.reviews.length} {toilet.reviews.length === 1 ? 'Review' : 'Reviews'}
             </Text>
             <Ionicons name="chevron-forward" size={16} color="#666" style={styles.chevron} />
           </TouchableOpacity>
         </View>
 
+        <View style={styles.reviewsSection}>
+          <Text style={[styles.sectionTitle, { fontFamily: 'System' }]}>Reviews</Text>
+          {toilet.reviews && toilet.reviews.length > 0 ? (
+            toilet.reviews.map((review) => (
+              <View key={review.id} style={styles.reviewItem}>
+                <View style={styles.reviewHeader}>
+                  <Text style={[styles.reviewerName, { fontFamily: 'System' }]}>{review.userName}</Text>
+                  <Text style={[styles.reviewDate, { fontFamily: 'System' }]}>{new Date(review.date).toLocaleDateString()}</Text>
+                </View>
+                <View style={styles.reviewRatings}>
+                  <View style={styles.reviewRatingItem}>
+                    <Text style={[styles.reviewRatingLabel, { fontFamily: 'System' }]}>Cleanliness:</Text>
+                    <RatingStars rating={review.cleanliness} size={14} />
+                  </View>
+                  <View style={styles.reviewRatingItem}>
+                    <Text style={[styles.reviewRatingLabel, { fontFamily: 'System' }]}>Accessibility:</Text>
+                    <RatingStars rating={review.accessibility} size={14} />
+                  </View>
+                  <View style={styles.reviewRatingItem}>
+                    <Text style={[styles.reviewRatingLabel, { fontFamily: 'System' }]}>Quality:</Text>
+                    <RatingStars rating={review.quality} size={14} />
+                  </View>
+                </View>
+                {review.comment ? (
+                  <Text style={[styles.reviewComment, { fontFamily: 'System' }]}>{review.comment}</Text>
+                ) : null}
+              </View>
+            ))
+          ) : (
+            <Text style={{ color: '#666', textAlign: 'center', fontFamily: 'System' }}>No reviews yet.</Text>
+          )}
+        </View>
+
         <View style={styles.addReviewSection}>
-          <Text style={styles.sectionTitle}>Add a Review</Text>
+          <Text style={[styles.sectionTitle, { fontFamily: 'System' }]}>Add a Review</Text>
           
           <View style={styles.ratingInput}>
-            <Text style={styles.ratingLabel}>Cleanliness:</Text>
+            <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Cleanliness:</Text>
             <RatingStars 
               rating={newReview.cleanliness} 
               size={24}
@@ -226,7 +262,7 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
           </View>
 
           <View style={styles.ratingInput}>
-            <Text style={styles.ratingLabel}>Accessibility:</Text>
+            <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Accessibility:</Text>
             <RatingStars 
               rating={newReview.accessibility} 
               size={24}
@@ -235,7 +271,7 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
           </View>
 
           <View style={styles.ratingInput}>
-            <Text style={styles.ratingLabel}>Quality:</Text>
+            <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Quality:</Text>
             <RatingStars 
               rating={newReview.quality} 
               size={24}
@@ -244,12 +280,16 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
           </View>
 
           <TextInput
-            style={styles.commentInput}
+            style={[styles.commentInput, { color: '#000', fontFamily: 'System' }]}
             placeholder="Add a comment (optional)..."
+            placeholderTextColor="#999"
             multiline
             value={newReview.comment}
             onChangeText={(text) => setNewReview(prev => ({ ...prev, comment: text }))}
           />
+          {Platform.OS === 'android' && (
+            <View style={{ height: 0 }} />
+          )}
           <TouchableOpacity
             style={[
               styles.submitButton,
@@ -258,12 +298,12 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
             onPress={handleSubmitReview}
             disabled={!isFormValid || isSubmitting}
           >
-            <Text style={styles.submitButtonText}>
+            <Text style={[styles.submitButtonText, { fontFamily: 'System' }]}>
               {isSubmitting ? 'Submitting...' : 'Submit Review'}
             </Text>
           </TouchableOpacity>
           {error && (
-            <Text style={styles.errorText}>{error}</Text>
+            <Text style={[styles.errorText, { fontFamily: 'System' }]}>{error}</Text>
           )}
         </View>
       </ScrollView>
@@ -285,11 +325,14 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 8,
+    color: '#000',
+    fontFamily: 'System',
   },
   address: {
     fontSize: 16,
     color: '#666',
     marginBottom: 8,
+    fontFamily: 'System',
   },
   paymentIndicator: {
     flexDirection: 'row',
@@ -298,7 +341,8 @@ const styles = StyleSheet.create({
   },
   paymentText: {
     fontSize: 16,
-    color: '#666',
+    color: '#000',
+    fontFamily: 'System',
   },
   ratingsContainer: {
     padding: 16,
@@ -313,7 +357,8 @@ const styles = StyleSheet.create({
   },
   ratingLabel: {
     fontSize: 16,
-    color: '#333',
+    color: '#000',
+    fontFamily: 'System',
   },
   starsContainer: {
     flexDirection: 'row',
@@ -326,6 +371,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 16,
+    color: '#000',
+    fontFamily: 'System',
   },
   reviewItem: {
     marginBottom: 16,
@@ -341,15 +388,19 @@ const styles = StyleSheet.create({
   reviewerName: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#000',
+    fontFamily: 'System',
   },
   reviewDate: {
     fontSize: 14,
     color: '#666',
+    fontFamily: 'System',
   },
   reviewComment: {
     fontSize: 14,
-    color: '#333',
+    color: '#000',
     marginTop: 8,
+    fontFamily: 'System',
   },
   addReviewSection: {
     padding: 16,
@@ -368,21 +419,24 @@ const styles = StyleSheet.create({
     minHeight: 100,
     textAlignVertical: 'top',
     marginBottom: 16,
+    color: '#000',
+    fontFamily: 'System',
   },
   submitButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#000',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 20,
   },
   submitButtonDisabled: {
-    backgroundColor: '#9E9E9E',
+    backgroundColor: '#E0E0E0',
   },
   submitButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'System',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -397,23 +451,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 12,
     borderRadius: 8,
+    backgroundColor: '#000',
   },
   showOnMapButton: {
-    backgroundColor: '#2A9D8F',
+    // backgroundColor handled by actionButton
   },
   directionsButton: {
-    backgroundColor: '#4CAF50',
+    // backgroundColor handled by actionButton
   },
   actionButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
+    fontFamily: 'System',
   },
   errorText: {
     color: 'red',
     textAlign: 'center',
     marginTop: 10,
+    fontFamily: 'System',
   },
   reviewRatings: {
     marginVertical: 8,
@@ -425,8 +482,9 @@ const styles = StyleSheet.create({
   },
   reviewRatingLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#000',
     width: 100,
+    fontFamily: 'System',
   },
   reviewCountContainer: {
     flexDirection: 'row',
@@ -442,6 +500,7 @@ const styles = StyleSheet.create({
     color: '#666',
     marginLeft: 4,
     marginRight: 4,
+    fontFamily: 'System',
   },
   chevron: {
     marginLeft: 4,

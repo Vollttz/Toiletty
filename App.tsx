@@ -30,7 +30,7 @@ type RootStackParamList = {
   ToiletDetail: { toilet: Toilet };
   Map: { selectedToilet?: Toilet };
   CreateToilet: { latitude: number; longitude: number };
-  Reviews: { toiletId: string };
+  Reviews: { toilet: Toilet };
 };
 
 // Custom Marker Component
@@ -45,9 +45,11 @@ const ToiletMarker = ({ toilet, onPress }: { toilet: Toilet; onPress: () => void
       anchor={{ x: 0.5, y: 1.0 }}
       zIndex={1000}
     >
-      <View style={styles.markerContainer}>
-        <Ionicons name="water" size={24} color="#2A9D8F" />
-      </View>
+      <Image
+        source={require('./assets/logo(1).jpg')}
+        style={styles.markerImage}
+        resizeMode="contain"
+      />
     </Marker>
   );
 };
@@ -209,6 +211,10 @@ const MapScreen = ({ route, navigation }: NativeStackScreenProps<RootStackParamL
     }
   };
 
+  const navigateToReviews = (toilet: Toilet) => {
+    navigation.navigate('Reviews', { toilet });
+  };
+
   if (errorMsg) {
     return (
       <View style={styles.screen}>
@@ -293,9 +299,10 @@ const MapScreen = ({ route, navigation }: NativeStackScreenProps<RootStackParamL
                     </View>
                     <TouchableOpacity
                       style={styles.seeMoreButton}
-                      onPress={handleSeeMore}
+                      onPress={() => navigateToReviews(selectedToilet)}
                     >
-                      <Text style={styles.seeMoreButtonText}>See More Details</Text>
+                      <Text style={styles.seeMoreButtonText}>See Reviews</Text>
+                      <Ionicons name="arrow-forward" size={20} color="white" />
                     </TouchableOpacity>
                   </>
                 )}
@@ -323,6 +330,7 @@ const MapScreen = ({ route, navigation }: NativeStackScreenProps<RootStackParamL
                 <Text style={styles.modalText}>
                   Would you like to add a new toilet at this location?
                 </Text>
+                <Text style={styles.modalText}>Lat: {selectedLocation?.latitude.toFixed(6)}, Lon: {selectedLocation?.longitude.toFixed(6)}</Text>
                 <TouchableOpacity
                   style={styles.confirmButton}
                   onPress={handleCreateToilet}
@@ -354,17 +362,20 @@ const HomeStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#2A9D8F',
+          backgroundColor: '#fff',
         },
-        headerTintColor: '#fff',
+        headerTintColor: '#000',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+        headerShadowVisible: false,
       }}
     >
       <Stack.Screen 
         name="HomeScreen" 
         component={HomeScreen}
         options={{ 
-          title: 'Toiletty',
-          headerShown: true
+          headerShown: false,
         }}
       />
       <Stack.Screen 
@@ -403,8 +414,8 @@ export default function App() {
           <Tab.Navigator
             initialRouteName="Home"
             screenOptions={({ route }) => ({
-              tabBarActiveTintColor: '#2A9D8F',
-              tabBarInactiveTintColor: 'gray',
+              tabBarActiveTintColor: '#000',
+              tabBarInactiveTintColor: '#666',
               headerShown: false,
               tabBarStyle: {
                 paddingBottom: 0,
@@ -415,9 +426,9 @@ export default function App() {
                 left: 0,
                 right: 0,
                 elevation: 0,
-                backgroundColor: 'white',
+                backgroundColor: '#fff',
                 borderTopWidth: 1,
-                borderTopColor: '#e0e0e0',
+                borderTopColor: '#E0E0E0',
               },
               tabBarItemStyle: {
                 marginTop: -20,
@@ -478,14 +489,18 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 20,
-    color: '#2A9D8F',
+    color: '#000',
   },
   markerContainer: {
-    backgroundColor: 'white',
-    padding: 8,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#2A9D8F',
+    // backgroundColor: 'white',
+    // padding: 8,
+    // borderRadius: 20,
+    // borderWidth: 2,
+    // borderColor: '#000',
+  },
+  markerImage: {
+    width: 35,
+    height: 35,
   },
   modalOverlay: {
     flex: 1,
@@ -515,7 +530,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2A9D8F',
+    color: '#000',
     flex: 1,
     marginRight: 10,
   },
@@ -544,10 +559,10 @@ const styles = StyleSheet.create({
   modalRatingValue: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#2A9D8F',
+    color: '#000',
   },
   seeMoreButton: {
-    backgroundColor: '#2A9D8F',
+    backgroundColor: '#000',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

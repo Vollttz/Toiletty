@@ -130,6 +130,9 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Find Toilets</Text>
+      </View>
       <FlatList
         data={toilets}
         keyExtractor={(item) => item.id}
@@ -143,8 +146,8 @@ const HomeScreen = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#2A9D8F']}
-            tintColor="#2A9D8F"
+            colors={['#000']}
+            tintColor="#000"
           />
         }
         ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -165,14 +168,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  header: {
+    padding: 16,
+    backgroundColor: '#fff', // White header background
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0', // Separator line below the header
+  },
+  headerText: {
+    fontSize: 40, // Increased font size considerably
+    fontWeight: 'bold',
+    color: '#000', // Black text color
+    fontFamily: 'System', // Use system font (SF Pro on iOS)
+  },
   list: {
     flex: 1,
   },
   listContent: {
-    paddingTop: 16,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   separator: {
-    height: 8,
+    height: 1,
+    backgroundColor: '#E0E0E0',
   },
   loadingContainer: {
     flex: 1,
@@ -188,6 +205,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     textAlign: 'center',
+    fontFamily: 'System', // Use system font
   },
   emptyContainer: {
     padding: 20,
@@ -196,6 +214,7 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#666',
     fontSize: 16,
+    fontFamily: 'System', // Use system font
   },
 });
 

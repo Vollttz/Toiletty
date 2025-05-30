@@ -17,6 +17,26 @@ interface ToiletCardProps {
   toilet: Toilet;
 }
 
+const StarRating = ({ rating, size = 16 }: { rating: number; size?: number }) => {
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 >= 0.5;
+  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+  return (
+    <View style={styles.starsContainer}>
+      {[...Array(fullStars)].map((_, i) => (
+        <Ionicons key={`full-${i}`} name="star" size={size} color="#000" />
+      ))
+      }
+      {hasHalfStar && <Ionicons name="star-half" size={size} color="#000" />}
+      {[...Array(emptyStars)].map((_, i) => (
+        <Ionicons key={`empty-${i}`} name="star-outline" size={size} color="#C0C0C0" />
+      ))
+      }
+    </View>
+  );
+};
+
 const ToiletCard: React.FC<ToiletCardProps> = ({ toilet }) => {
   const navigation = useNavigation<NavigationProp>();
 
@@ -24,127 +44,116 @@ const ToiletCard: React.FC<ToiletCardProps> = ({ toilet }) => {
     navigation.navigate('ToiletDetail', { toilet });
   };
 
-  const handleShowOnMap = () => {
-    navigation.navigate('Map', { selectedToilet: toilet });
-  };
-
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>
-      <View style={styles.header}>
+      <View style={styles.cardHeader}>
         <Text style={styles.name}>{toilet.name}</Text>
-        <View style={[styles.badge, toilet.isPaid ? styles.paidBadge : styles.freeBadge]}>
-          <Text style={styles.badgeText}>{toilet.isPaid ? 'Paid' : 'Free'}</Text>
-        </View>
+        <Text style={styles.paidStatus}>{toilet.isPaid ? 'Yes' : 'No'}</Text>
       </View>
-      
-      <Text style={styles.distance}>{toilet.distance.toFixed(1)} miles away</Text>
-      
-      <View style={styles.ratingsContainer}>
-        <View style={styles.ratingItem}>
-          <Text style={styles.ratingLabel}>Cleanliness</Text>
-          <Text style={styles.ratingValue}>{toilet.ratings.cleanliness.toFixed(1)}</Text>
-        </View>
-        <View style={styles.ratingItem}>
-          <Text style={styles.ratingLabel}>Accessibility</Text>
-          <Text style={styles.ratingValue}>{toilet.ratings.accessibility.toFixed(1)}</Text>
-        </View>
-        <View style={styles.ratingItem}>
-          <Text style={styles.ratingLabel}>Quality</Text>
-          <Text style={styles.ratingValue}>{toilet.ratings.quality.toFixed(1)}</Text>
-        </View>
-      </View>
+      <Text style={styles.distance}>{toilet.distance.toFixed(1)} km</Text>
 
-      <TouchableOpacity 
-        style={styles.showOnMapButton}
-        onPress={handleShowOnMap}
-      >
-        <Ionicons name="map" size={20} color="white" />
-        <Text style={styles.showOnMapButtonText}>Show on Map</Text>
-      </TouchableOpacity>
+      <View style={styles.ratingsContainer}>
+        <View style={styles.ratingRow}>
+          <Text style={styles.ratingLabel}>Cleanliness</Text>
+          <StarRating rating={toilet.ratings.cleanliness} />
+        </View>
+        <View style={styles.ratingRow}>
+          <Text style={styles.ratingLabel}>Accessibility</Text>
+          <StarRating rating={toilet.ratings.accessibility} />
+        </View>
+        <View style={styles.ratingRow}>
+          <Text style={styles.ratingLabel}>Quality</Text>
+          <StarRating rating={toilet.ratings.quality} />
+        </View>
+      </View>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  list: {
+    flex: 1,
+  },
+  listContent: {
+    paddingTop: 0,
+    paddingBottom: 0,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#E0E0E0',
+  },
   card: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    marginHorizontal: 16,
-    marginVertical: 8,
+    borderRadius: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginHorizontal: 0,
+    marginVertical: 0,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 1,
+    elevation: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
-  header: {
+  cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 2,
   },
   name: {
     fontSize: 18,
     fontWeight: 'bold',
     flex: 1,
     marginRight: 8,
+    color: '#000',
+    fontFamily: 'System',
   },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  paidBadge: {
-    backgroundColor: '#FFD700',
-  },
-  freeBadge: {
-    backgroundColor: '#90EE90',
-  },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: '600',
+  paidStatus: {
+    fontSize: 16,
+    color: '#000',
+    fontFamily: 'System',
   },
   distance: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 12,
+    marginBottom: 8,
+    fontFamily: 'System',
   },
   ratingsContainer: {
+    marginTop: 8,
+  },
+  ratingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  ratingItem: {
     alignItems: 'center',
-  },
-  ratingLabel: {
-    fontSize: 12,
-    color: '#666',
     marginBottom: 4,
   },
-  ratingValue: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  showOnMapButton: {
-    backgroundColor: '#2A9D8F',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 8,
-    borderRadius: 6,
-    marginTop: 8,
-    width: '100%',
-  },
-  showOnMapButtonText: {
-    color: 'white',
+  ratingLabel: {
     fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 4,
+    color: '#000',
+    flex: 1,
+    marginRight: 8,
+    fontFamily: 'System',
+  },
+  starsContainer: {
+    flexDirection: 'row',
+  },
+});
+
+const homeScreenStyles = StyleSheet.create({
+  separator: {
+    height: 1,
+    backgroundColor: '#E0E0E0',
   },
 });
 

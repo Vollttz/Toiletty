@@ -125,118 +125,118 @@ const CreateToilet: React.FC<Props> = ({ route, navigation }) => {
           contentContainerStyle={styles.scrollViewContent}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.header}>
-            <Text style={styles.title}>Add New Toilet</Text>
-            <Text style={styles.subtitle}>Location: {latitude.toFixed(6)}, {longitude.toFixed(6)}</Text>
+        <View style={styles.header}>
+          <Text style={[styles.title, { fontFamily: 'System' }]}>Add New Toilet</Text>
+          <Text style={[styles.subtitle, { fontFamily: 'System' }]}>Location: {latitude.toFixed(6)}, {longitude.toFixed(6)}</Text>
+        </View>
+
+        <View style={styles.form}>
+          <View style={styles.inputGroup}>
+            <Text style={[styles.label, { fontFamily: 'System' }]}>Name *</Text>
+            <TextInput
+              style={[styles.input, { fontFamily: 'System' }]}
+              value={name}
+              onChangeText={setName}
+              placeholder="Enter toilet name"
+              placeholderTextColor="#999"
+            />
           </View>
 
-          <View style={styles.form}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Name *</Text>
-              <TextInput
-                style={styles.input}
-                value={name}
-                onChangeText={setName}
-                placeholder="Enter toilet name"
-                placeholderTextColor="#999"
-              />
-            </View>
+          <View style={styles.inputGroup}>
+            <Text style={[styles.label, { fontFamily: 'System' }]}>Address *</Text>
+            <TextInput
+              style={[styles.input, { fontFamily: 'System' }]}
+              value={address}
+              onChangeText={setAddress}
+              placeholder="Enter address"
+              placeholderTextColor="#999"
+            />
+          </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Address *</Text>
-              <TextInput
-                style={styles.input}
-                value={address}
-                onChangeText={setAddress}
-                placeholder="Enter address"
-                placeholderTextColor="#999"
-              />
-            </View>
-
-            <View style={styles.paymentToggle}>
-              <Text style={styles.label}>Payment Status</Text>
-              <TouchableOpacity
-                style={[styles.toggleButton, isPaid && styles.toggleButtonActive]}
-                onPress={() => setIsPaid(!isPaid)}
-              >
-                <Text style={[styles.toggleButtonText, isPaid && styles.toggleButtonTextActive]}>
-                  {isPaid ? 'Paid' : 'Free'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
+          <View style={styles.paymentToggle}>
+            <Text style={[styles.label, { fontFamily: 'System' }]}>Payment Status</Text>
             <TouchableOpacity
-              style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
-              onPress={() => {
-                console.log('Button pressed');
-                handleSubmit();
-              }}
-              disabled={isSubmitting}
+              style={[styles.toggleButton, isPaid && styles.toggleButtonActive]}
+              onPress={() => setIsPaid(!isPaid)}
             >
-              <Text style={styles.submitButtonText}>
-                {isSubmitting ? 'Adding...' : 'Add Toilet'}
+              <Text style={[styles.toggleButtonText, isPaid && styles.toggleButtonTextActive, { fontFamily: 'System' }]}>
+                {isPaid ? 'Paid' : 'Free'}
               </Text>
             </TouchableOpacity>
+          </View>
 
-            <View style={styles.ratingsSection}>
-              <Text style={styles.sectionTitle}>Initial Ratings</Text>
-              
-              <View style={styles.ratingInput}>
-                <Text style={styles.ratingLabel}>Cleanliness</Text>
-                <View style={styles.starsContainer}>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <TouchableOpacity
-                      key={star}
-                      onPress={() => updateRating('cleanliness', star)}
-                    >
-                      <Ionicons
-                        name={star <= ratings.cleanliness ? 'star' : 'star-outline'}
-                        size={24}
-                        color="#2A9D8F"
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </View>
+          <TouchableOpacity
+            style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+            onPress={() => {
+              console.log('Button pressed');
+              handleSubmit();
+            }}
+            disabled={isSubmitting}
+          >
+            <Text style={[styles.submitButtonText, { fontFamily: 'System' }]}>
+              {isSubmitting ? 'Adding...' : 'Add Toilet'}
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.ratingsSection}>
+            <Text style={[styles.sectionTitle, { fontFamily: 'System' }]}>Initial Ratings</Text>
+            
+            <View style={styles.ratingInput}>
+              <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Cleanliness</Text>
+              <View style={styles.starsContainer}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity
+                    key={star}
+                    onPress={() => updateRating('cleanliness', star)}
+                  >
+                    <Ionicons
+                      name={star <= ratings.cleanliness ? 'star' : 'star-outline'}
+                      size={24}
+                      color={star <= ratings.cleanliness ? '#000' : '#C0C0C0'}
+                    />
+                  </TouchableOpacity>
+                ))}
               </View>
+            </View>
 
-              <View style={styles.ratingInput}>
-                <Text style={styles.ratingLabel}>Accessibility</Text>
-                <View style={styles.starsContainer}>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <TouchableOpacity
-                      key={star}
-                      onPress={() => updateRating('accessibility', star)}
-                    >
-                      <Ionicons
-                        name={star <= ratings.accessibility ? 'star' : 'star-outline'}
-                        size={24}
-                        color="#2A9D8F"
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </View>
+            <View style={styles.ratingInput}>
+              <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Accessibility</Text>
+              <View style={styles.starsContainer}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity
+                    key={star}
+                    onPress={() => updateRating('accessibility', star)}
+                  >
+                    <Ionicons
+                      name={star <= ratings.accessibility ? 'star' : 'star-outline'}
+                      size={24}
+                      color={star <= ratings.accessibility ? '#000' : '#C0C0C0'}
+                    />
+                  </TouchableOpacity>
+                ))}
               </View>
+            </View>
 
-              <View style={styles.ratingInput}>
-                <Text style={styles.ratingLabel}>Quality</Text>
-                <View style={styles.starsContainer}>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <TouchableOpacity
-                      key={star}
-                      onPress={() => updateRating('quality', star)}
-                    >
-                      <Ionicons
-                        name={star <= ratings.quality ? 'star' : 'star-outline'}
-                        size={24}
-                        color="#2A9D8F"
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </View>
+            <View style={styles.ratingInput}>
+              <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Quality</Text>
+              <View style={styles.starsContainer}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity
+                    key={star}
+                    onPress={() => updateRating('quality', star)}
+                  >
+                    <Ionicons
+                      name={star <= ratings.quality ? 'star' : 'star-outline'}
+                      size={24}
+                      color={star <= ratings.quality ? '#000' : '#C0C0C0'}
+                    />
+                  </TouchableOpacity>
+                ))}
               </View>
             </View>
           </View>
-        </ScrollView>
+        </View>
+      </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -264,12 +264,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2A9D8F',
+    color: '#000',
     marginBottom: 8,
+    fontFamily: 'System',
   },
   subtitle: {
     fontSize: 14,
     color: '#666',
+    fontFamily: 'System',
   },
   form: {
     padding: 16,
@@ -281,6 +283,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginBottom: 8,
+    fontFamily: 'System',
   },
   input: {
     borderWidth: 1,
@@ -302,7 +305,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E0E0',
   },
   toggleButtonActive: {
-    backgroundColor: '#2A9D8F',
+    backgroundColor: '#000',
   },
   toggleButtonText: {
     color: '#666',
@@ -318,6 +321,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 16,
+    fontFamily: 'System',
   },
   ratingInput: {
     marginBottom: 16,
@@ -326,13 +330,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginBottom: 8,
+    fontFamily: 'System',
   },
   starsContainer: {
     flexDirection: 'row',
     gap: 8,
   },
   submitButton: {
-    backgroundColor: '#2A9D8F',
+    backgroundColor: '#000',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -344,6 +349,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'System',
   },
 });
 
