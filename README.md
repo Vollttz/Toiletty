@@ -41,7 +41,7 @@ npm install
 
 2. Start the development server:
 ```bash
-npmx expo start --clear
+npx expo start --clear
 ```
 
 3. Run on expo go:
