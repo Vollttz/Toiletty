@@ -161,16 +161,16 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.header}>
-          <Text style={[styles.name, { fontFamily: 'System' }]}>{toilet.name}</Text>
-          <Text style={[styles.address, { fontFamily: 'System' }]}>{toilet.address}</Text>
+          <Text style={styles.name}>{toilet.name}</Text>
+          <Text style={styles.address}>{toilet.address}</Text>
           <View style={styles.paymentIndicator}>
-            <Ionicons
-              name={toilet.isPaid ? 'cash' : 'cash-outline'}
-              size={24}
-              color={toilet.isPaid ? '#000' : '#C0C0C0'}
+            <Ionicons 
+              name={toilet.isPaid ? "cash" : "cash-outline"} 
+              size={20} 
+              color="#000" 
             />
-            <Text style={[styles.paymentText, { fontFamily: 'System' }]}>
-              {toilet.isPaid ? 'Paid' : 'Free'}
+            <Text style={styles.paymentText}>
+              {toilet.isPaid ? "Paid" : "Free"}
             </Text>
           </View>
           <View style={styles.buttonContainer}>
@@ -193,15 +193,15 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
 
         <View style={styles.ratingsContainer}>
           <View style={styles.ratingItem}>
-            <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Cleanliness</Text>
+            <Text style={styles.ratingLabel}>Cleanliness</Text>
             <RatingStars rating={toilet.ratings.cleanliness} size={16} />
           </View>
           <View style={styles.ratingItem}>
-            <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Accessibility</Text>
+            <Text style={styles.ratingLabel}>Accessibility</Text>
             <RatingStars rating={toilet.ratings.accessibility} size={16} />
           </View>
           <View style={styles.ratingItem}>
-            <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Quality</Text>
+            <Text style={styles.ratingLabel}>Quality</Text>
             <RatingStars rating={toilet.ratings.quality} size={16} />
           </View>
           <TouchableOpacity 
@@ -209,51 +209,18 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
             onPress={() => navigation.navigate('Reviews', { toilet })}
           >
             <Ionicons name="chatbubble-outline" size={16} color="#666" />
-            <Text style={[styles.reviewCountText, { fontFamily: 'System' }]}>
-              {toilet.reviews.length} {toilet.reviews.length === 1 ? 'Review' : 'Reviews'}
+            <Text style={styles.reviewCountText}>
+              {toilet.reviews?.length || 0} {toilet.reviews?.length === 1 ? 'Review' : 'Reviews'}
             </Text>
             <Ionicons name="chevron-forward" size={16} color="#666" style={styles.chevron} />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.reviewsSection}>
-          <Text style={[styles.sectionTitle, { fontFamily: 'System' }]}>Reviews</Text>
-          {toilet.reviews && toilet.reviews.length > 0 ? (
-            toilet.reviews.map((review) => (
-              <View key={review.id} style={styles.reviewItem}>
-                <View style={styles.reviewHeader}>
-                  <Text style={[styles.reviewerName, { fontFamily: 'System' }]}>{review.userName}</Text>
-                  <Text style={[styles.reviewDate, { fontFamily: 'System' }]}>{new Date(review.date).toLocaleDateString()}</Text>
-                </View>
-                <View style={styles.reviewRatings}>
-                  <View style={styles.reviewRatingItem}>
-                    <Text style={[styles.reviewRatingLabel, { fontFamily: 'System' }]}>Cleanliness:</Text>
-                    <RatingStars rating={review.cleanliness} size={14} />
-                  </View>
-                  <View style={styles.reviewRatingItem}>
-                    <Text style={[styles.reviewRatingLabel, { fontFamily: 'System' }]}>Accessibility:</Text>
-                    <RatingStars rating={review.accessibility} size={14} />
-                  </View>
-                  <View style={styles.reviewRatingItem}>
-                    <Text style={[styles.reviewRatingLabel, { fontFamily: 'System' }]}>Quality:</Text>
-                    <RatingStars rating={review.quality} size={14} />
-                  </View>
-                </View>
-                {review.comment ? (
-                  <Text style={[styles.reviewComment, { fontFamily: 'System' }]}>{review.comment}</Text>
-                ) : null}
-              </View>
-            ))
-          ) : (
-            <Text style={{ color: '#666', textAlign: 'center', fontFamily: 'System' }}>No reviews yet.</Text>
-          )}
-        </View>
-
         <View style={styles.addReviewSection}>
-          <Text style={[styles.sectionTitle, { fontFamily: 'System' }]}>Add a Review</Text>
+          <Text style={styles.sectionTitle}>Add a Review</Text>
           
           <View style={styles.ratingInput}>
-            <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Cleanliness:</Text>
+            <Text style={styles.ratingLabel}>Cleanliness:</Text>
             <RatingStars 
               rating={newReview.cleanliness} 
               size={24}
@@ -262,7 +229,7 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
           </View>
 
           <View style={styles.ratingInput}>
-            <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Accessibility:</Text>
+            <Text style={styles.ratingLabel}>Accessibility:</Text>
             <RatingStars 
               rating={newReview.accessibility} 
               size={24}
@@ -271,7 +238,7 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
           </View>
 
           <View style={styles.ratingInput}>
-            <Text style={[styles.ratingLabel, { fontFamily: 'System' }]}>Quality:</Text>
+            <Text style={styles.ratingLabel}>Quality:</Text>
             <RatingStars 
               rating={newReview.quality} 
               size={24}
@@ -280,7 +247,7 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
           </View>
 
           <TextInput
-            style={[styles.commentInput, { color: '#000', fontFamily: 'System' }]}
+            style={styles.commentInput}
             placeholder="Add a comment (optional)..."
             placeholderTextColor="#999"
             multiline
@@ -298,12 +265,12 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
             onPress={handleSubmitReview}
             disabled={!isFormValid || isSubmitting}
           >
-            <Text style={[styles.submitButtonText, { fontFamily: 'System' }]}>
+            <Text style={styles.submitButtonText}>
               {isSubmitting ? 'Submitting...' : 'Submit Review'}
             </Text>
           </TouchableOpacity>
           {error && (
-            <Text style={[styles.errorText, { fontFamily: 'System' }]}>{error}</Text>
+            <Text style={styles.errorText}>{error}</Text>
           )}
         </View>
       </ScrollView>

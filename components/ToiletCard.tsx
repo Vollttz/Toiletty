@@ -48,7 +48,7 @@ const ToiletCard: React.FC<ToiletCardProps> = ({ toilet }) => {
     <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={styles.cardHeader}>
         <Text style={styles.name}>{toilet.name}</Text>
-        <Text style={styles.paidStatus}>{toilet.isPaid ? 'Yes' : 'No'}</Text>
+        <Text style={styles.paidStatus}>{toilet.isPaid ? 'Paid' : 'Free'}</Text>
       </View>
       <Text style={styles.distance}>{toilet.distance.toFixed(1)} km</Text>
 

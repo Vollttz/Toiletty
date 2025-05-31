@@ -172,6 +172,14 @@ const MapScreen = ({ route, navigation }: NativeStackScreenProps<RootStackParamL
   const handleMarkerPress = (toilet: Toilet) => {
     setSelectedToilet(toilet);
     setModalVisible(true);
+    
+    // Center the map on the selected toilet
+    mapRef.current?.animateToRegion({
+      latitude: toilet.latitude,
+      longitude: toilet.longitude,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    }, 500); // 500ms animation duration
   };
 
   const onMapReady = () => {
@@ -212,7 +220,8 @@ const MapScreen = ({ route, navigation }: NativeStackScreenProps<RootStackParamL
   };
 
   const navigateToReviews = (toilet: Toilet) => {
-    navigation.navigate('Reviews', { toilet });
+    setModalVisible(false);
+    navigation.navigate('ToiletDetail', { toilet });
   };
 
   if (errorMsg) {
@@ -277,6 +286,16 @@ const MapScreen = ({ route, navigation }: NativeStackScreenProps<RootStackParamL
                     <Text style={styles.modalDistance}>
                       {selectedToilet.distance.toFixed(1)} miles away
                     </Text>
+                    <View style={styles.modalPaymentStatus}>
+                      <Ionicons 
+                        name={selectedToilet.isPaid ? "cash" : "cash-outline"} 
+                        size={16} 
+                        color="#000" 
+                      />
+                      <Text style={styles.modalPaymentText}>
+                        {selectedToilet.isPaid ? "Paid" : "Free"}
+                      </Text>
+                    </View>
                     <View style={styles.modalRatings}>
                       <View style={styles.modalRatingItem}>
                         <Text style={styles.modalRatingLabel}>Cleanliness</Text>
@@ -541,6 +560,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     marginBottom: 15,
+  },
+  modalPaymentStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 15,
+  },
+  modalPaymentText: {
+    fontSize: 16,
+    color: '#000',
   },
   modalRatings: {
     flexDirection: 'row',
