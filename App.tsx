@@ -21,6 +21,7 @@ import ReviewsScreen from './screens/ReviewsScreen';
 import { AuthProvider, useAuth } from './lib/AuthContext';
 import AuthScreen from './screens/AuthScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Create the navigators
 const Tab = createBottomTabNavigator<RootStackParamList>();
@@ -75,6 +76,10 @@ const MapScreen = ({ route, navigation }: NativeStackScreenProps<RootStackParamL
     try {
       setLoading(true);
       
+      // Get saved distance from AsyncStorage
+      const savedDistance = await AsyncStorage.getItem('searchDistance');
+      const distance = savedDistance ? Number(savedDistance) : 5;
+
       // Get user's location
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
@@ -89,11 +94,16 @@ const MapScreen = ({ route, navigation }: NativeStackScreenProps<RootStackParamL
       
       setLocation(location);
 
+      // Get saved sort preference
+      const savedSortBy = await AsyncStorage.getItem('sortBy');
+      const sortBy = savedSortBy || 'distance';
+
       // Fetch nearby toilets
       const data = await api.getNearbyToilets(
         location.coords.latitude,
         location.coords.longitude,
-        3 // 3 mile radius
+        distance,
+        sortBy as 'distance' | 'rating'
       );
 
       // Transform the data to match our Toilet type
