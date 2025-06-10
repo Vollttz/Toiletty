@@ -20,6 +20,7 @@ import CreateToilet from './screens/CreateToilet';
 import ReviewsScreen from './screens/ReviewsScreen';
 import { AuthProvider, useAuth } from './lib/AuthContext';
 import AuthScreen from './screens/AuthScreen';
+import SettingsScreen from './screens/SettingsScreen';
 
 // Create the navigators
 const Tab = createBottomTabNavigator<RootStackParamList>();
@@ -33,6 +34,7 @@ type RootStackParamList = {
   Map: { selectedToilet?: Toilet };
   CreateToilet: { latitude: number; longitude: number };
   Reviews: { toilet: Toilet };
+  Settings: undefined;
 };
 
 // Custom Marker Component
@@ -498,6 +500,16 @@ function AppContent() {
                 tabBarLabel: 'Map',
                 tabBarIcon: ({ color, size }) => (
                   <Ionicons name="map" size={size} color={color} style={{ marginTop: -30 }} />
+                ),
+              }}
+            />
+            <Tab.Screen 
+              name="Settings" 
+              component={SettingsScreen}
+              options={{
+                tabBarLabel: 'Settings',
+                tabBarIcon: ({ color, size }) => (
+                  <Ionicons name="settings-outline" size={size} color={color} style={{ marginTop: -30 }} />
                 ),
               }}
             />

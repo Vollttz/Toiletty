@@ -353,4 +353,71 @@ export const api = {
       throw error;
     }
   },
+
+  getNearbyToilets: async (
+    latitude: number,
+    longitude: number,
+    distance: number = 5,
+    sortBy: 'distance' | 'rating' = 'distance'
+  ) => {
+    try {
+      // Convert distance from miles to degrees (approximately 69 miles per degree)
+      const distanceInDegrees = distance / 69.0;
+      
+      const response = await fetch(
+        `${API_URL}/rest/v1/toilets?select=*,ratings(cleanliness,accessibility,quality)&latitude=gte.${latitude - distanceInDegrees}&latitude=lte.${latitude + distanceInDegrees}&longitude=gte.${longitude - distanceInDegrees}&longitude=lte.${longitude + distanceInDegrees}`,
+        {
+          method: 'GET',
+          headers,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch toilets');
+      }
+
+      const toilets = await response.json();
+
+      // Calculate distance and average rating for each toilet
+      const toiletsWithRatings = toilets.map((toilet: any) => {
+        // Calculate distance in miles using the Haversine formula
+        const R = 3958.8; // Earth's radius in miles
+        const lat1 = latitude * Math.PI / 180;
+        const lat2 = toilet.latitude * Math.PI / 180;
+        const dLat = (toilet.latitude - latitude) * Math.PI / 180;
+        const dLon = (toilet.longitude - longitude) * Math.PI / 180;
+
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1) * Math.cos(lat2) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const distanceInMiles = R * c;
+
+        const ratings = toilet.ratings || [];
+        const avgRating = ratings.length > 0
+          ? ratings.reduce((acc: number, curr: any) => 
+              acc + (curr.cleanliness + curr.accessibility + curr.quality) / 3, 0) / ratings.length
+          : 0;
+
+        return {
+          ...toilet,
+          distance: distanceInMiles,
+          averageRating: avgRating,
+        };
+      }).filter(toilet => toilet.distance <= distance); // Filter out toilets beyond the selected distance
+
+      // Sort based on user preference
+      if (sortBy === 'rating') {
+        toiletsWithRatings.sort((a: any, b: any) => b.averageRating - a.averageRating);
+      } else {
+        // Sort by distance by default
+        toiletsWithRatings.sort((a: any, b: any) => a.distance - b.distance);
+      }
+
+      return toiletsWithRatings;
+    } catch (error) {
+      console.error('Error fetching nearby toilets:', error);
+      throw error;
+    }
+  },
 }; 

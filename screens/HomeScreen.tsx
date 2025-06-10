@@ -6,6 +6,7 @@ import { Toilet } from '../types';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = () => {
   const [toilets, setToilets] = useState<Toilet[]>([]);
@@ -18,6 +19,10 @@ const HomeScreen = () => {
     try {
       setLoading(true);
       
+      // Get saved distance from AsyncStorage
+      const savedDistance = await AsyncStorage.getItem('searchDistance');
+      const distance = savedDistance ? Number(savedDistance) : 5;
+
       // Get user's location
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
@@ -30,11 +35,16 @@ const HomeScreen = () => {
         accuracy: Location.Accuracy.Balanced
       });
 
+      // Get saved sort preference
+      const savedSortBy = await AsyncStorage.getItem('sortBy');
+      const sortBy = savedSortBy || 'distance';
+
       // Fetch nearby toilets
       const data = await api.getNearbyToilets(
         location.coords.latitude,
         location.coords.longitude,
-        3 // 3 mile radius
+        distance,
+        sortBy as 'distance' | 'rating'
       );
 
       // Transform the data to match our Toilet type
@@ -100,7 +110,7 @@ const HomeScreen = () => {
     }
   };
 
-  // Use useFocusEffect to refresh data when screen comes into focus
+  // Fetch toilets when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       fetchToilets();
