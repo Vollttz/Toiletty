@@ -16,6 +16,9 @@ const DISTANCE_OPTIONS = [1, 2, 3, 5, 10, 20, 50];
 const SORT_OPTIONS = [
   { id: 'distance', label: 'Distance' },
   { id: 'rating', label: 'Rating' },
+  { id: 'cleanliness', label: 'Cleanliness' },
+  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'quality', label: 'Quality' },
 ];
 
 export default function SettingsScreen() {
@@ -95,8 +98,29 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Sort By</Text>
           <Text style={styles.sectionSubtitle}>Choose how to sort nearby toilets</Text>
-          <View style={styles.sortOptions}>
-            {SORT_OPTIONS.map((option) => (
+          <View style={styles.sortOptionsRow}>
+            {SORT_OPTIONS.slice(0, 3).map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.sortOption,
+                  sortBy === option.id && styles.selectedSort,
+                ]}
+                onPress={() => handleSortSelect(option.id)}
+              >
+                <Text
+                  style={[
+                    styles.sortText,
+                    sortBy === option.id && styles.selectedSortText,
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <View style={styles.sortOptionsRow}>
+            {SORT_OPTIONS.slice(3).map((option) => (
               <TouchableOpacity
                 key={option.id}
                 style={[
@@ -185,9 +209,12 @@ const styles = StyleSheet.create({
   selectedDistanceText: {
     color: '#fff',
   },
-  sortOptions: {
+  sortOptionsRow: {
     flexDirection: 'row',
+    marginTop: 10,
+    marginBottom: 0,
     gap: 10,
+    justifyContent: 'flex-start',
   },
   sortOption: {
     paddingHorizontal: 20,

@@ -43,8 +43,7 @@ const HomeScreen = () => {
       const data = await api.getNearbyToilets(
         location.coords.latitude,
         location.coords.longitude,
-        distance,
-        sortBy as 'distance' | 'rating'
+        distance
       );
 
       // Transform the data to match our Toilet type
@@ -100,7 +99,30 @@ const HomeScreen = () => {
         })
       );
 
-      setToilets(transformedToilets);
+      // Sort the toilets based on the selected sort option
+      let sortedToilets = [...transformedToilets];
+      switch (sortBy) {
+        case 'rating':
+          sortedToilets.sort((a, b) => {
+            const aRating = (a.ratings.cleanliness + a.ratings.accessibility + a.ratings.quality) / 3;
+            const bRating = (b.ratings.cleanliness + b.ratings.accessibility + b.ratings.quality) / 3;
+            return bRating - aRating;
+          });
+          break;
+        case 'cleanliness':
+          sortedToilets.sort((a, b) => b.ratings.cleanliness - a.ratings.cleanliness);
+          break;
+        case 'accessibility':
+          sortedToilets.sort((a, b) => b.ratings.accessibility - a.ratings.accessibility);
+          break;
+        case 'quality':
+          sortedToilets.sort((a, b) => b.ratings.quality - a.ratings.quality);
+          break;
+        default: // 'distance'
+          sortedToilets.sort((a, b) => a.distance - b.distance);
+      }
+
+      setToilets(sortedToilets);
     } catch (err) {
       console.error('Error in fetchToilets:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
