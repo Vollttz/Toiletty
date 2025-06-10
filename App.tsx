@@ -612,16 +612,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   confirmButton: {
-    backgroundColor: '#2A9D8F',
-    padding: 16,
-    borderRadius: 8,
+    backgroundColor: '#000',
+    padding: 15,
+    borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 12,
+    marginTop: 10,
   },
   confirmButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   cancelButton: {
     padding: 16,

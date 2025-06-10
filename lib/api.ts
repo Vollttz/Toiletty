@@ -1,9 +1,5 @@
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config';
 
-// Log the actual values being used
-console.log('Using Supabase URL:', SUPABASE_URL);
-console.log('Using Supabase Key:', SUPABASE_ANON_KEY);
-
 // Add safety checks for environment variables
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error('Missing Supabase configuration');
@@ -18,9 +14,6 @@ const headers = {
   'Content-Type': 'application/json',
   'Prefer': 'return=representation'
 };
-
-// Log the headers being used
-console.log('Using headers:', headers);
 
 // Helper function to add timeout to fetch
 const fetchWithTimeout = async (url: string, options: RequestInit, timeout = 15000) => {

@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import { Tables } from '../lib/supabase';
 
 const supabase = createClient(
-  'https://kkblfrnlvhhcllrdxaws.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrYmxmcm5sdmhoY2xscmR4YXdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5MzQ1OTUsImV4cCI6MjA2MzUxMDU5NX0.mQn05N5LS3p-gU4SDf2Hoq2mU5NPJWgGYsDDT4PUaew'
+  'https://wdkndnynsyblgtrzdyvv.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indka25kbnluc3libGd0cnpkeXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1MjcyMjgsImV4cCI6MjA2NTEwMzIyOH0.0CXjQdxX1rFPQtTfsOF0QVf1qsJVI4wIInDI6JHsbb8'
 );
 
 async function cleanupDatabase() {
