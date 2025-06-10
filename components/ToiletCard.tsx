@@ -51,7 +51,7 @@ const ToiletCard: React.FC<ToiletCardProps> = ({ toilet }) => {
         <Text style={styles.paidStatus}>{toilet.isPaid ? 'Paid' : 'Free'}</Text>
       </View>
       <Text style={styles.distance}>{toilet.distance.toFixed(1)} km</Text>
-
+      
       <View style={styles.ratingsContainer}>
         <View style={styles.ratingRow}>
           <Text style={styles.ratingLabel}>Cleanliness</Text>

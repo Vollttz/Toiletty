@@ -92,12 +92,12 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
         });
 
         // Reset form
-        setNewReview({
-          cleanliness: 0,
-          accessibility: 0,
-          quality: 0,
-          comment: '',
-        });
+      setNewReview({
+        cleanliness: 0,
+        accessibility: 0,
+        quality: 0,
+        comment: '',
+      });
 
         // Refresh the toilet data
         const updatedRatings = await api.getRatings(toilet.id);
@@ -164,7 +164,7 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
           <Text style={styles.name}>{toilet.name}</Text>
           <Text style={styles.address}>{toilet.address}</Text>
           <View style={styles.paymentIndicator}>
-            <Ionicons 
+            <Ionicons
               name={toilet.isPaid ? "cash" : "cash-outline"} 
               size={20} 
               color="#000" 
@@ -174,11 +174,11 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
             </Text>
           </View>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity 
+          <TouchableOpacity 
               style={[styles.actionButton, styles.showOnMapButton]}
-              onPress={handleShowOnMap}
-            >
-              <Ionicons name="map" size={20} color="white" />
+            onPress={handleShowOnMap}
+          >
+            <Ionicons name="map" size={20} color="white" />
               <Text style={[styles.actionButtonText, { fontFamily: 'System' }]}>Show on Map</Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -187,7 +187,7 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
             >
               <Ionicons name="navigate" size={20} color="white" />
               <Text style={[styles.actionButtonText, { fontFamily: 'System' }]}>Get Directions</Text>
-            </TouchableOpacity>
+          </TouchableOpacity>
           </View>
         </View>
 
