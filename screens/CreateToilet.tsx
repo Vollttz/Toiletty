@@ -165,19 +165,6 @@ const CreateToilet: React.FC<Props> = ({ route, navigation }) => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
-            onPress={() => {
-              console.log('Button pressed');
-              handleSubmit();
-            }}
-            disabled={isSubmitting}
-          >
-            <Text style={[styles.submitButtonText, { fontFamily: 'System' }]}>
-              {isSubmitting ? 'Adding...' : 'Add Toilet'}
-            </Text>
-          </TouchableOpacity>
-
           <View style={styles.ratingsSection}>
             <Text style={[styles.sectionTitle, { fontFamily: 'System' }]}>Initial Ratings</Text>
             
@@ -235,6 +222,19 @@ const CreateToilet: React.FC<Props> = ({ route, navigation }) => {
               </View>
             </View>
           </View>
+
+          <TouchableOpacity
+            style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+            onPress={() => {
+              console.log('Button pressed');
+              handleSubmit();
+            }}
+            disabled={isSubmitting}
+          >
+            <Text style={[styles.submitButtonText, { fontFamily: 'System' }]}>
+              {isSubmitting ? 'Adding...' : 'Add Toilet'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
       </KeyboardAvoidingView>

@@ -18,6 +18,8 @@ import { api } from './lib/api';
 import { useFocusEffect } from '@react-navigation/native';
 import CreateToilet from './screens/CreateToilet';
 import ReviewsScreen from './screens/ReviewsScreen';
+import { AuthProvider, useAuth } from './lib/AuthContext';
+import AuthScreen from './screens/AuthScreen';
 
 // Create the navigators
 const Tab = createBottomTabNavigator<RootStackParamList>();
@@ -424,7 +426,21 @@ const HomeStack = () => {
   );
 };
 
-export default function App() {
+function AppContent() {
+  const { session, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
+
+  if (!session) {
+    return <AuthScreen />;
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
@@ -466,7 +482,7 @@ export default function App() {
             })}
           >
             <Tab.Screen 
-              name="Home" 
+              name="Home"
               component={HomeStack}
               options={{
                 tabBarLabel: 'Home',
@@ -489,6 +505,14 @@ export default function App() {
         </NavigationContainer>
       </SafeAreaProvider>
     </GestureHandlerRootView>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

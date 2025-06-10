@@ -1,9 +1,12 @@
+import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config';
 
 // Add safety checks for environment variables
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error('Missing Supabase configuration');
 }
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const API_URL = SUPABASE_URL;
 const API_KEY = SUPABASE_ANON_KEY;
