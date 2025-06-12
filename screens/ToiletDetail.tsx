@@ -74,17 +74,38 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
   const [error, setError] = useState<string | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [randomImage, setRandomImage] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     loadImages();
+    loadRandomImage();
   }, []);
+
+  const loadRandomImage = async () => {
+    try {
+      const image = await api.getRandomToiletImage(toilet.id);
+      if (image) {
+        // Test if the image URL is valid
+        const response = await fetch(image);
+        if (response.ok) {
+          setRandomImage(image);
+          setImageError(false);
+        } else {
+          setImageError(true);
+        }
+      }
+    } catch (error) {
+      setImageError(true);
+    }
+  };
 
   const loadImages = async () => {
     try {
       const toiletImages = await api.getToiletImages(toilet.id);
-      setImages(toiletImages);
+      setImages(toiletImages || []);
     } catch (error) {
-      console.error('Error loading images:', error);
+      setImages([]);
     }
   };
 
@@ -237,6 +258,24 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
+        <View style={[styles.headerImage, { backgroundColor: '#f0f0f0' }]}>
+          {randomImage && !imageError ? (
+            <Image
+              source={{ uri: randomImage }}
+              style={styles.headerImage}
+              resizeMode="cover"
+              onError={(e) => {
+                console.error('Image loading error:', e.nativeEvent.error);
+                setImageError(true);
+              }}
+            />
+          ) : (
+            <View style={styles.placeholderContainer}>
+              <Ionicons name="image-outline" size={48} color="#999" />
+              <Text style={styles.placeholderText}>No image available</Text>
+            </View>
+          )}
+        </View>
         <View style={styles.header}>
           <Text style={styles.name}>{toilet.name}</Text>
           <Text style={styles.address}>{toilet.address}</Text>
@@ -312,17 +351,11 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
               <Ionicons name="camera-outline" size={24} color="#000" />
               <Text style={[styles.imageButtonText, { color: '#000' }]}>Take Photo</Text>
             </TouchableOpacity>
-              </View>
+          </View>
           
-          <View style={styles.imageGrid}>
-            {images.map((imageUrl, index) => (
-              <Image
-                key={index}
-                source={{ uri: imageUrl }}
-                style={styles.image}
-              />
-            ))}
-            </View>
+          {uploading && (
+            <Text style={styles.uploadingText}>Uploading image...</Text>
+          )}
         </View>
 
         <View style={styles.addReviewSection}>
@@ -596,15 +629,27 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 14,
   },
-  imageGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+  uploadingText: {
+    textAlign: 'center',
+    color: '#666',
+    marginTop: 8,
+    fontFamily: 'System',
   },
-  image: {
-    width: '48%',
-    aspectRatio: 1,
-    borderRadius: 8,
+  headerImage: {
+    width: '100%',
+    height: 200,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  placeholderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: '#999',
+    fontSize: 16,
+    fontFamily: 'System',
   },
 });
 

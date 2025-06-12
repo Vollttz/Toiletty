@@ -486,11 +486,44 @@ export const api = {
         .eq('id', toiletId)
         .single();
 
-      if (error) throw error;
-      return data.images || [];
+      if (error) {
+        throw error;
+      }
+      
+      // Get all images from the specific folder
+      const { data: storageData, error: storageError } = await supabase.storage
+        .from('toiletimages')
+        .list('46e78e90-6146-48a7-a765-839c21603dcf');
+
+      if (storageError) {
+        throw storageError;
+      }
+
+      // Get public URLs for all images
+      const imageUrls = storageData.map(file => {
+        const { data: { publicUrl } } = supabase.storage
+          .from('toiletimages')
+          .getPublicUrl(`46e78e90-6146-48a7-a765-839c21603dcf/${file.name}`);
+        return publicUrl;
+      });
+
+      return imageUrls;
     } catch (error) {
-      console.error('Error getting toilet images:', error);
       throw error;
+    }
+  },
+
+  getRandomToiletImage: async (toiletId: string) => {
+    try {
+      const images = await api.getToiletImages(toiletId);
+      
+      if (!images || images.length === 0) {
+        return null;
+      }
+      
+      return images[Math.floor(Math.random() * images.length)];
+    } catch (error) {
+      return null;
     }
   },
 }; 

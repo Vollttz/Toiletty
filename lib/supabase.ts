@@ -31,6 +31,7 @@ export type Tables = {
     longitude: number;
     is_paid: boolean;
     created_at: string;
+    images: string[];
   };
   ratings: {
     id: string;
