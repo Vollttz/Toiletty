@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,12 +10,14 @@ import {
   Linking,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import { Toilet, Review } from '../types';
 import { Ionicons } from '@expo/vector-icons';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { api } from '../lib/api';
+import * as ImagePicker from 'expo-image-picker';
 
 type RootStackParamList = {
   HomeScreen: undefined;
@@ -70,6 +72,81 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    loadImages();
+  }, []);
+
+  const loadImages = async () => {
+    try {
+      const toiletImages = await api.getToiletImages(toilet.id);
+      setImages(toiletImages);
+    } catch (error) {
+      console.error('Error loading images:', error);
+    }
+  };
+
+  const pickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant permission to access your photos');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        await uploadImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
+
+  const takePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant permission to access your camera');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        await uploadImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Error', 'Failed to take photo');
+    }
+  };
+
+  const uploadImage = async (uri: string) => {
+    try {
+      setUploading(true);
+      const imageUrl = await api.uploadToiletImage(toilet.id, uri);
+      setImages(prev => [...prev, imageUrl]);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      Alert.alert('Error', 'Failed to upload image');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmitReview = async () => {
     if (
@@ -216,6 +293,38 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
           </TouchableOpacity>
         </View>
 
+        <View style={styles.imagesSection}>
+          <Text style={styles.sectionTitle}>Photos</Text>
+          <View style={styles.imageButtons}>
+            <TouchableOpacity 
+              style={styles.imageButton} 
+              onPress={pickImage}
+              disabled={uploading}
+            >
+              <Ionicons name="image-outline" size={24} color="#000" />
+              <Text style={[styles.imageButtonText, { color: '#000' }]}>Pick Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.imageButton} 
+              onPress={takePhoto}
+              disabled={uploading}
+            >
+              <Ionicons name="camera-outline" size={24} color="#000" />
+              <Text style={[styles.imageButtonText, { color: '#000' }]}>Take Photo</Text>
+            </TouchableOpacity>
+              </View>
+          
+          <View style={styles.imageGrid}>
+            {images.map((imageUrl, index) => (
+              <Image
+                key={index}
+                source={{ uri: imageUrl }}
+                style={styles.image}
+              />
+            ))}
+            </View>
+        </View>
+
         <View style={styles.addReviewSection}>
           <Text style={styles.sectionTitle}>Add a Review</Text>
           
@@ -248,20 +357,16 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
 
           <TextInput
             style={styles.commentInput}
-            placeholder="Add a comment (optional)..."
-            placeholderTextColor="#999"
-            multiline
             value={newReview.comment}
             onChangeText={(text) => setNewReview(prev => ({ ...prev, comment: text }))}
+            placeholder="Write your review..."
+            placeholderTextColor="#999"
+            multiline
+            numberOfLines={4}
           />
-          {Platform.OS === 'android' && (
-            <View style={{ height: 0 }} />
-          )}
+
           <TouchableOpacity
-            style={[
-              styles.submitButton,
-              (!isFormValid || isSubmitting) && styles.submitButtonDisabled
-            ]}
+            style={[styles.submitButton, !isFormValid && styles.submitButtonDisabled]}
             onPress={handleSubmitReview}
             disabled={!isFormValid || isSubmitting}
           >
@@ -269,9 +374,6 @@ const ToiletDetail: React.FC<Props> = ({ route }) => {
               {isSubmitting ? 'Submitting...' : 'Submit Review'}
             </Text>
           </TouchableOpacity>
-          {error && (
-            <Text style={styles.errorText}>{error}</Text>
-          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -471,6 +573,38 @@ const styles = StyleSheet.create({
   },
   chevron: {
     marginLeft: 4,
+  },
+  imagesSection: {
+    padding: 16,
+    backgroundColor: '#fff',
+    marginTop: 8,
+  },
+  imageButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 16,
+  },
+  imageButton: {
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    width: '45%',
+  },
+  imageButtonText: {
+    marginTop: 4,
+    color: '#000',
+    fontSize: 14,
+  },
+  imageGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  image: {
+    width: '48%',
+    aspectRatio: 1,
+    borderRadius: 8,
   },
 });
 

@@ -22,7 +22,7 @@ const HomeScreen = () => {
       // Get saved distance from AsyncStorage
       const savedDistance = await AsyncStorage.getItem('searchDistance');
       const distance = savedDistance ? Number(savedDistance) : 5;
-
+      
       // Get user's location
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {

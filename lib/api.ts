@@ -1,5 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config';
+import RNFS from 'react-native-fs';
+import { Buffer } from 'buffer';
+import { Platform } from 'react-native';
 
 // Add safety checks for environment variables
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -417,6 +420,76 @@ export const api = {
       return toiletsWithRatings;
     } catch (error) {
       console.error('Error fetching nearby toilets:', error);
+      throw error;
+    }
+  },
+
+  uploadToiletImage: async (toiletId: string, imageUri: string) => {
+    try {
+      // Create a unique filename
+      const filename = `${toiletId}/${Date.now()}.jpg`;
+
+      // Create form data with the file
+      const formData = new FormData();
+      formData.append('file', {
+        uri: Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri,
+        type: 'image/jpeg',
+        name: filename
+      } as any);
+
+      console.log('Uploading file from URI:', imageUri);
+
+      // Upload using Supabase storage client
+      const { data, error } = await supabase.storage
+        .from('toiletimages')
+        .upload(filename, formData, {
+          contentType: 'multipart/form-data',
+          upsert: true
+        });
+
+      if (error) {
+        console.error('Upload error:', error);
+        throw error;
+      }
+
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('toiletimages')
+        .getPublicUrl(filename);
+
+      // Update the toilet record
+      const { data: toilet } = await supabase
+        .from('toilets')
+        .select('images')
+        .eq('id', toiletId)
+        .single();
+
+      await supabase
+        .from('toilets')
+        .update({ 
+          images: [...(toilet?.images || []), publicUrl]
+        })
+        .eq('id', toiletId);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error in uploadToiletImage:', error);
+      throw error;
+    }
+  },
+
+  getToiletImages: async (toiletId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('toilets')
+        .select('images')
+        .eq('id', toiletId)
+        .single();
+
+      if (error) throw error;
+      return data.images || [];
+    } catch (error) {
+      console.error('Error getting toilet images:', error);
       throw error;
     }
   },

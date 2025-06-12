@@ -10,12 +10,14 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '../lib/api';
 import { Toilet } from '../types';
+import * as ImagePicker from 'expo-image-picker';
 
 type RootStackParamList = {
   HomeScreen: undefined;
@@ -43,12 +45,61 @@ const CreateToilet: React.FC<Props> = ({ route, navigation }) => {
     quality: 0,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   const updateRating = (type: keyof typeof ratings, value: number) => {
     setRatings(prev => ({
       ...prev,
       [type]: value
     }));
+  };
+
+  const pickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant permission to access your photos');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        setImages(prev => [...prev, result.assets[0].uri]);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
+
+  const takePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant permission to access your camera');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        setImages(prev => [...prev, result.assets[0].uri]);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Error', 'Failed to take photo');
+    }
   };
 
   const handleSubmit = async () => {
@@ -80,6 +131,11 @@ const CreateToilet: React.FC<Props> = ({ route, navigation }) => {
       });
 
       console.log('Toilet created successfully:', newToilet);
+
+      // Upload images
+      for (const imageUri of images) {
+        await api.uploadToiletImage(newToilet.id, imageUri);
+      }
 
       // Submit initial ratings
       const reviewResult = await api.submitReview(newToilet.id, {
@@ -223,6 +279,38 @@ const CreateToilet: React.FC<Props> = ({ route, navigation }) => {
             </View>
           </View>
 
+          <View style={styles.imagesSection}>
+            <Text style={[styles.sectionTitle, { fontFamily: 'System' }]}>Photos</Text>
+            <View style={styles.imageButtons}>
+              <TouchableOpacity 
+                style={styles.imageButton} 
+                onPress={pickImage}
+                disabled={uploading}
+              >
+                <Ionicons name="image-outline" size={24} color="#007AFF" />
+                <Text style={styles.imageButtonText}>Pick Photo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.imageButton} 
+                onPress={takePhoto}
+                disabled={uploading}
+              >
+                <Ionicons name="camera-outline" size={24} color="#007AFF" />
+                <Text style={styles.imageButtonText}>Take Photo</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.imageGrid}>
+              {images.map((imageUri, index) => (
+                <Image
+                  key={index}
+                  source={{ uri: imageUri }}
+                  style={styles.image}
+                />
+              ))}
+            </View>
+          </View>
+
           <TouchableOpacity
             style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
             onPress={() => {
@@ -335,6 +423,38 @@ const styles = StyleSheet.create({
   starsContainer: {
     flexDirection: 'row',
     gap: 8,
+  },
+  imagesSection: {
+    padding: 16,
+    backgroundColor: '#fff',
+    marginTop: 8,
+  },
+  imageButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 16,
+  },
+  imageButton: {
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    width: '45%',
+  },
+  imageButtonText: {
+    marginTop: 4,
+    color: '#007AFF',
+    fontSize: 14,
+  },
+  imageGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  image: {
+    width: '48%',
+    aspectRatio: 1,
+    borderRadius: 8,
   },
   submitButton: {
     backgroundColor: '#000',
